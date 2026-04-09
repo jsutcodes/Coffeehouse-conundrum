@@ -1,6 +1,7 @@
 package com.github.jsutcodes.coffeehouse_scheduler.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -33,6 +34,12 @@ class PaymentControllerImplTest {
 		assertScheduleEqual(expectedResult,result);
 	}
 	
+	
+	
+	
+	
+	
+	// Helpers --------------------------------------------------------------
 	private List<Tuple> generateReciptByPerson(Map<String, Number> map)
 	{
 		map.forEach((k,v) -> {
@@ -43,10 +50,14 @@ class PaymentControllerImplTest {
 	}
 	
 	private void assertScheduleEqual(List<?> expected,List<?> actual ) {
-		expected.sort(null);
-		actual.sort(null);
-		
-		 assertEquals(expected, actual);
+		try {
+			expected.sort(null);
+			actual.sort(null);
+			assertEquals(expected, actual);
+		} catch (AssertionError | NullPointerException e) {
+			System.err.print(String.format("assertScheduleEqual failure: expected did not equal actual:\n\t expected:\n\t %s\n\t actual:\n\t%s\n",expected,actual ));
+			fail();
+		}
 	}
 
 }

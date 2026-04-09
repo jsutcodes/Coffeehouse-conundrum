@@ -8,7 +8,16 @@ public class PaymentControllerImpl implements PaymentControllerService {
 	private List<Tuple> schedule = new LinkedList<Tuple>();
 	@Override
 	public List<String> calculatePaymentRotation(List<Tuple> list) {
-		// TODO Auto-generated method stub
+		               
+		int totalBillSum = list.stream()
+				.map(tuple -> tuple.price())
+				.filter(Number.class::isInstance)
+				.map(Number.class::cast)
+				.mapToInt(Number::intValue)
+				.sum();
+		//calculate shared % for each person
+		//generate scedule object and return
+		
 		return null;
 	}
 
