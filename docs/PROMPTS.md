@@ -12,3 +12,23 @@ Result:
   │ C │
   └───┘
 ```  
+
+### Query: If i have a List of Person objects and that object has a List of MenuItems that have a Price, how can i use streams to sum the total of all the menuItems for all Persons.
+Result:
+```
+Allows the smaller totalBillSum instead of having double forloops.
+
+int totalBillSum = list.stream()
+    .flatMap(person -> person.getItems().stream())
+    .filter(Number.class::isInstance)
+    .map(Number.class::cast)
+    .mapToInt(Number::intValue)
+    .sum();
+
+```
+
+### Query: how to calculate the exact number of days the cycle will last based on the inputs before you even start the loop?
+Result:
+```
+Allows for code generation of the predictCycleLength() which will tell how many cycles it would take to reach zero.
+```
