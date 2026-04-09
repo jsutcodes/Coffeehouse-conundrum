@@ -1,20 +1,22 @@
 package com.github.jsutcodes.coffeehouse_scheduler.service;
 
-import java.util.LinkedList;
 import java.util.List;
+
+import com.github.jsutcodes.coffeehouse_scheduler.model.Person;
+import com.github.jsutcodes.coffeehouse_scheduler.model.Schedule;
 
 public class PaymentControllerImpl implements PaymentControllerService {
 
-	private List<Tuple> schedule = new LinkedList<Tuple>();
+	private Schedule schedule = new Schedule();
 	@Override
-	public List<String> calculatePaymentRotation(List<Tuple> list) {
+	public Schedule calculatePaymentRotation(List<Person> list) {
 		               
-		int totalBillSum = list.stream()
-				.map(tuple -> tuple.price())
-				.filter(Number.class::isInstance)
-				.map(Number.class::cast)
-				.mapToInt(Number::intValue)
-				.sum();
+//		int totalBillSum = list.stream()
+//				.map(tuple -> tuple.price())
+//				.filter(Number.class::isInstance)
+//				.map(Number.class::cast)
+//				.mapToInt(Number::intValue)
+//				.sum();
 		//calculate shared % for each person
 		//generate scedule object and return
 		
@@ -22,7 +24,7 @@ public class PaymentControllerImpl implements PaymentControllerService {
 	}
 
 	@Override
-	public List<Tuple> getSchedule() {
+	public Schedule getSchedule() {
 		return schedule;
 	}
 
