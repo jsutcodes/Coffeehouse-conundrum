@@ -3,6 +3,7 @@ package com.github.jsutcodes.coffeehouse_scheduler.model;
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import lombok.Getter;
@@ -13,9 +14,10 @@ import lombok.Setter;
 public class Schedule {
 	
 	private Long id;
-	private List<Person> people = new LinkedList<>(); 
+	private List<Person> people = new LinkedList<>();
+	//private List< Map<String, BigDecimal>> debtBalancesPerRound = new LinkedList<Map<String,BigDecimal>>();
 	private int currentPayerIndex = 0;
-	private BigDecimal grandTotal = new BigDecimal(0);
+	private int maxNumOfRounds = 0;
 	
 	
 	

@@ -31,7 +31,7 @@ class PaymentControllerImplTest {
 
 		List<Person> input = generateReciptByPerson(Map.of("A", 1, "B", 3, "C", 6));
 		
-		System.out.println(Schedule.predictCycleLength(input));
+		//System.out.println(Schedule.predictCycleLength(input));
 		
 		Schedule result = pcs.calculatePaymentRotation(input);
 
@@ -45,10 +45,13 @@ class PaymentControllerImplTest {
 	void givenIrrationalDecNum_whenSchedule_thenForceBreakEven() {
 		
 		List<Person> input = generateReciptByPerson(Map.of("A", 3.33, "B", 4.67, "C", 2));
-		System.out.println(Schedule.predictCycleLength(input)); //1000
-		//What happens in this case?
 		
-		fail();
+		Schedule result = pcs.calculatePaymentRotation(input);
+
+		Schedule expectedResult = setExpectedSchedule(input,
+				Arrays.asList("B", "A", "C", "B", "A", "B", "C", "B", "A", "B","A","B","C","A", "B"));
+
+		assertScheduleEqual(expectedResult, result);
 	}
 	
 	@Test
@@ -56,10 +59,12 @@ class PaymentControllerImplTest {
 		
 		//Test case where there are no decimals x100 
 		List<Person> input = generateReciptByPerson(Map.of("A", 333, "B", 467, "C", 200));
-		System.out.println(Schedule.predictCycleLength(input)); //1000
-		//What happens in this case?
-		
-		fail();
+		Schedule result = pcs.calculatePaymentRotation(input);
+
+		Schedule expectedResult = setExpectedSchedule(input,
+				Arrays.asList("B", "A", "C", "B", "A", "B", "C", "B", "A", "B","A","B","C","A", "B"));
+
+		assertScheduleEqual(expectedResult, result);
 	}
 
 	// Helpers --------------------------------------------------------------
