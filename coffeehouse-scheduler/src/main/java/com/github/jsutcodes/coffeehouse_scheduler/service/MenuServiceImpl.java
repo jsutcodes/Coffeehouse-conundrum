@@ -14,25 +14,21 @@ public class MenuServiceImpl implements MenuService {
 
     private final MenuRepository menuRepository;
 
-    // Get all menu items
     @Override
     public List<Menu> getAllMenuItems() {
         return menuRepository.findAll();
     }
 
-    // Get one menu item by ID
     @Override
     public Optional<Menu> getMenuItemById(Long id) {
         return menuRepository.findById(id);
     }
 
-    // Save a new menu item
     @Override
     public Menu saveMenuItem(Menu menu) {
         return menuRepository.save(menu);
     }
 
-    // Delete a menu item
     @Override
     public void deleteMenuItem(Long id) {
         menuRepository.deleteById(id);

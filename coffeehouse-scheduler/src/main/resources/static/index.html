@@ -4,62 +4,127 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffeehouse Scheduler</title>
-    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="bg-light">
-    <div class="container mt-5">
-        <h2 class="mb-4 text-center">Menu Records from API</h2>
-        <div class="table-responsive">
-            <table class="table table-striped table-hover shadow-sm rounded" id="userTable">
-                <thead class="table-dark">
-                    <tr>
-                        <th>ID</th>
-                        <th>Name</th>
-                        <th>Email</th>
-                        <th>Website</th>
-                    </tr>
-                </thead>
-                <tbody id="data-output">
-                    <!-- Data will be injected here -->
-                </tbody>
-            </table>
-        </div>
+    <div class="container-fluid py-5 px-4">
+        <div class="row g-4">
+            
+            <!-- LEFT COLUMN: People List -->
+            <div class="col-lg-8">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-primary text-white">
+                        <h4 class="mb-0">Order</h4>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-hover align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Name</th>
+                                        <th>Order Cost</th>
+                                    </tr>
+                                </thead>
+								<tbody id="data-output-person" class="small">
+								    <!-- Data injected here -->
+								</tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Buttons for People Table -->
+                    <div class="card-footer d-flex gap-2 bg-white border-top-0 pb-3">
+						<button class="btn btn-sm btn-outline-primary">Remove Person</button>
+                        <button class="btn btn-sm btn-primary">Add Person</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Smaller Menu -->
+            <div class="col-lg-4">
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-dark text-white text-center">
+                        <h5 class="mb-0">Menu Records</h5>
+                    </div>
+                    <div class="card-body px-0"> <!-- Removed side padding for a tighter look -->
+                        <div class="table-responsive">
+                            <table class="table table-sm table-striped mb-0" id="userTable">
+                                <thead class="small text-muted">
+                                    <tr>
+                                        <th class="ps-3">Item</th>
+                                        <th>Size</th>
+                                        <th class="pe-3">Price</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-output-menu" class="small">
+                                    <!-- Data injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <!-- Buttons for Menu Table -->
+                    <div class="card-footer d-flex justify-content-center gap-2 bg-white border-top-0 pb-3">
+                        <button class="btn btn-sm btn-dark px-3" onclick="location.reload()">Refresh</button>
+                        <button class="btn btn-sm btn-outline-dark px-3">+ Item</button>
+                    </div>
+                </div>
+            </div>
+
+        </div> <!-- End Row -->
     </div>
 
-    <!-- JavaScript Below -->
-	<script>
-	    async function fetchData() {
-	        try {
-	            // 1. Call the API
-	            const response = await fetch('http://localhost:8080/api/menu');
-	            const data = await response.json();
-	            
-	            // 2. Select the table body
-	            const tableBody = document.getElementById('data-output');
-	            
-	            // 3. Loop through data and create rows
-	            let output = "";
-	            data.forEach(user => {
-	                output += `
-	                    <tr>
-	                        <td>${user.id}</td>
-	                        <td>${user.name}</td>
-	                        <td>${user.email}</td>
-	                        <td>${user.website}</td>
-	                    </tr>
-	                `;
-	            });
-	            
-	            // 4. Inject into the table
-	            tableBody.innerHTML = output;
-	        } catch (error) {
-	            console.error("Error fetching data:", error);
-	        }
-	    }
+    <!-- JavaScript -->
+    <script>
+        async function fetchData() {
+            try {
+                const response = await fetch('http://localhost:8080/api/menu');
+                const menuData = await response.json();
+                const tableBody = document.getElementById('data-output-menu');
+                
+                let output = "";
+                menuData.forEach(menuItem => {
+                    output += `
+                        <tr>
+                            <td class="ps-3 fw-bold">${menuItem.name}</td>
+                            <td><span class="text-muted text-capitalize">${menuItem.size}</span></td>
+                            <td class="pe-3 text-success font-monospace">$${menuItem.price.toFixed(2)}</td>
+                        </tr>
+                    `;
+                });
+                
+                tableBody.innerHTML = output;
+            } catch (error) {
+                console.error("Error fetching menu data:", error);
+                document.getElementById('data-output').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">Offline</td></tr>`;
+            }
+			
+			try {
+			    const response = await fetch('http://localhost:8080/api/person');
+			    const personData = await response.json();
+			    const tableBody = document.getElementById('data-output-person');
+			    
+			    let output = "";
+			    personData.forEach(person => {
+			        output += `
+			            <tr>
+			                <td class="ps-3 fw-bold">${person.name}</td>
+			                <td class="pe-3 text-success font-monospace">$${person.items}</td>
+			            </tr>
+			        `;
+			    });
+			    
+			    tableBody.innerHTML = output;
+			} catch (error) {
+			    console.error("Error fetching person data:", error);
+			    document.getElementById('data-output').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">Offline</td></tr>`;
+			}
+			
+        }
+        fetchData();
+    </script>
 
-	    // Call function on page load
-	    fetchData();
-	</script>
+	<!-- Bootstrap CSS -->
+	<link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
 
+	<!-- Bootstrap JS (Optional) -->
+	<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

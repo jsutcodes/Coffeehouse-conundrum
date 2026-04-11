@@ -6,9 +6,24 @@ INSERT INTO person (name, created_at) VALUES ('Sandra', CURRENT_TIMESTAMP);
 INSERT INTO person (name, created_at) VALUES ('Tom', CURRENT_TIMESTAMP);
 INSERT INTO person (name, created_at) VALUES ('Violet', CURRENT_TIMESTAMP);
 
--- 2. Insert Menu (Note: store_id must match an existing person ID)
-INSERT INTO menu (name, price, size, store_id, created_at) 
-VALUES ('Latte', 4.50, 'Large', 1, CURRENT_TIMESTAMP);
+-- 2. Insert Menu 
+-- Coffee Classics
+INSERT INTO menu (name, price, size, created_at) VALUES ('Espresso', 2.75, 'Small', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Americano', 3.25, 'Medium', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Cappuccino', 4.25, 'Medium', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Latte', 4.50, 'Large', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Flat White', 4.00, 'Small', CURRENT_TIMESTAMP);
+
+-- Cold Brew & Specialty
+INSERT INTO menu (name, price, size, created_at) VALUES ('Cold Brew', 4.75, 'Large', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Nitro Cold Brew', 5.50, 'Medium', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Caramel Macchiato', 5.25, 'Large',CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Mocha', 4.95, 'Large', CURRENT_TIMESTAMP);
+
+-- Seasonal / Tea
+INSERT INTO menu (name, price, size, created_at) VALUES ('Chai Latte', 4.50, 'Medium', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Matcha Latte', 5.00, 'Medium', CURRENT_TIMESTAMP);
+INSERT INTO menu (name, price, size, created_at) VALUES ('Earl Grey Tea', 3.00, 'Large', CURRENT_TIMESTAMP);
 
 -- 3. Insert Schedule
 --INSERT INTO schedule (current_payer_index, max_num_of_rounds, created_at) 
