@@ -1,0 +1,24 @@
+package com.github.jsutcodes.coffeehouse_scheduler.entity;
+
+import java.time.LocalDateTime;
+
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.MappedSuperclass;
+import jakarta.persistence.Table;
+import lombok.Getter;
+import lombok.Setter;
+
+@MappedSuperclass
+@Getter 
+@Setter 
+public abstract class BaseEntity {
+	
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+    
+    private LocalDateTime createdAt;
+
+}

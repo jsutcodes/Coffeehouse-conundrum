@@ -12,17 +12,17 @@ import java.util.Map;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.github.jsutcodes.coffeehouse_scheduler.model.Person;
-import com.github.jsutcodes.coffeehouse_scheduler.model.Schedule;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Person;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Schedule;
 
 class PaymentControllerImplTest {
 
-	private PaymentControllerService pcs;
+	private PaymentService pcs;
 	private List<Person> recipt;
 
 	@BeforeEach
 	void setUp() {
-		pcs = new PaymentControllerImpl();
+		pcs = new PaymentServiceImpl();
 		recipt = new LinkedList<>();
 	}
 

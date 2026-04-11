@@ -32,3 +32,8 @@ Result:
 ```
 Allows for code generation of the predictCycleLength() which will tell how many cycles it would take to reach zero.
 ```
+
+### Query: How can I add an UI with bootstrap to a spring boot project?
+```
+Allowed for the WebJar recommendation and steps to include UI in packaged Jar.  
+```

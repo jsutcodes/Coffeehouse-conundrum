@@ -9,11 +9,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.github.jsutcodes.coffeehouse_scheduler.model.Menu;
-import com.github.jsutcodes.coffeehouse_scheduler.model.Person;
-import com.github.jsutcodes.coffeehouse_scheduler.model.Schedule;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Menu;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Person;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Schedule;
 
-public class PaymentControllerImpl implements PaymentControllerService {
+public class PaymentServiceImpl implements PaymentService {
 
 	private Schedule schedule = new Schedule();
 	private Map<String, BigDecimal> debtBalances = new HashMap<>();

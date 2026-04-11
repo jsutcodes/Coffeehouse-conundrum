@@ -1,19 +1,23 @@
-package com.github.jsutcodes.coffeehouse_scheduler.model;
+package com.github.jsutcodes.coffeehouse_scheduler.entity;
 
 import java.math.BigDecimal;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
 @Getter @Setter @NoArgsConstructor
-public class Schedule {
+public class Schedule extends BaseEntity{
 	
 	private Long id;
+	
+	@OneToMany
 	private List<Person> people = new LinkedList<>();
 	//private List< Map<String, BigDecimal>> debtBalancesPerRound = new LinkedList<Map<String,BigDecimal>>();
 	private int currentPayerIndex = 0;
