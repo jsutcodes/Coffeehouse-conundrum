@@ -1,0 +1,79 @@
+package com.github.jsutcodes.coffeehouse_scheduler.entity;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Entity;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.OneToMany;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+public class Schedule extends BaseEntity {
+
+//	    @ManyToMany
+//	    @JoinTable(name = "schedule_participants")
+//	    private List<Person> people = new ArrayList<>();
+
+	@OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+	@JoinColumn(name = "schedule_id")
+	private List<Round> rounds = new ArrayList<>();
+
+	private int maxNumOfRounds = 0;
+
+	public static long predictCycleLength(List<Person> list) {
+		// 1. Get costs as long (cents) to avoid decimal issues
+		List<Long> costs = list.stream()
+				.map(p -> p.getItems().stream().map(Menu::getPrice).reduce(BigDecimal.ZERO, BigDecimal::add)
+						.movePointRight(2).longValue()) // $1.00 -> 100
+				.collect(Collectors.toList());
+
+		// 2. Find GCD of all costs
+		long commonDivisor = costs.get(0);
+		for (int i = 1; i < costs.size(); i++) {
+			commonDivisor = gcd(commonDivisor, costs.get(i));
+		}
+
+		// 3. The cycle length is the Sum / GCD
+		long totalCents = costs.stream().mapToLong(Long::longValue).sum();
+		return totalCents / commonDivisor;
+	}
+
+	private static long gcd(long a, long b) {
+		return b == 0 ? a : gcd(b, a % b);
+	}
+
+	@Override
+	public String toString() {
+
+		StringBuilder top = new StringBuilder();
+		StringBuilder mid = new StringBuilder();
+		StringBuilder bot = new StringBuilder();
+
+		for (Round round : rounds) {
+			String s = round.getPayerName();
+			int len = s.length();
+
+			// Create the horizontal bar based on the string length plus padding
+			String line = "─".repeat(len + 2);
+
+			top.append("┌").append(line).append("┐");
+			mid.append("│ ").append(s).append(" │");
+			bot.append("└").append(line).append("┘");
+		}
+
+//    System.out.println(top.toString());
+//    System.out.println(mid.toString());
+//    System.out.println(bot.toString());
+
+		return top.append("\n").append(mid).append("\n").append(bot).append("\n").toString();
+	}
+}

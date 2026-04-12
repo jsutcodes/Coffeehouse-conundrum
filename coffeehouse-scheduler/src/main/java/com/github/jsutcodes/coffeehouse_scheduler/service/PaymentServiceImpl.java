@@ -9,11 +9,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.github.jsutcodes.coffeehouse_scheduler.model.Menu;
-import com.github.jsutcodes.coffeehouse_scheduler.model.Person;
-import com.github.jsutcodes.coffeehouse_scheduler.model.Schedule;
+import org.springframework.stereotype.Service;
 
-public class PaymentControllerImpl implements PaymentControllerService {
+import com.github.jsutcodes.coffeehouse_scheduler.entity.DebtEntry;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Menu;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Person;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Round;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Schedule;
+
+@Service
+public class PaymentServiceImpl implements PaymentService {
 
 	private Schedule schedule = new Schedule();
 	private Map<String, BigDecimal> debtBalances = new HashMap<>();
@@ -53,15 +58,20 @@ public class PaymentControllerImpl implements PaymentControllerService {
 	}
 
 	private Schedule generateSchedule(List<Person> list, BigDecimal totalBill, Map<String, BigDecimal> shares) {
-
+		
+		schedule = new Schedule();
 		Set<String> seenStates = new HashSet<>();
 		// Find the Schedules Max rounds to loop about
-		int maxRounds = Math.min(MAX_ROUNDS, Math.toIntExact(Schedule.predictCycleLength(list)));
+		schedule.setMaxNumOfRounds(Math.toIntExact(Schedule.predictCycleLength(list)));
+		int maxRounds = Math.min(MAX_ROUNDS,schedule.getMaxNumOfRounds());
 
 		for (int i = 0; i < maxRounds; i++) {
+			Round currentRound = new Round();
+			currentRound.setRoundNumber(i);
 			System.out.println("Round " + (i + 1));
+			
 			Map<String, BigDecimal> previousDebtBalances = new HashMap<>(debtBalances);
-			Person nextPayer = getNextPayer(list, totalBill);
+			Person nextPayer = getNextPayer(list, totalBill, currentRound);
 
 			String currentState = nextPayer.getName() + "|" + list.stream().map(p -> {
 				// Round to 0 decimal places just for the comparison key
@@ -75,8 +85,9 @@ public class PaymentControllerImpl implements PaymentControllerService {
 				break;
 			}
 
-			schedule.getPeople().add(nextPayer);
-			System.out.println(currentState);
+			//schedule.getPeople().add(nextPayer);
+			schedule.getRounds().add(currentRound);
+			//System.out.println(currentState);
 			seenStates.add(currentState);
 			System.out.println("");
 		}
@@ -87,13 +98,19 @@ public class PaymentControllerImpl implements PaymentControllerService {
 		return schedule;
 	}
 
-	private Person getNextPayer(List<Person> list, BigDecimal totalBill) {
+	private Person getNextPayer(List<Person> list, BigDecimal totalBill, Round round) {
 		Map<String, BigDecimal> currentBillShares = calculateSharedPercentageByPerson(list);
 
 		// 1. Update everyone's balance with their share of the current bill
 		for (Person p : list) {
+			DebtEntry debt = new DebtEntry();
 			BigDecimal shareAmount = currentBillShares.getOrDefault(p.getName(), BigDecimal.ZERO);
 			BigDecimal currentDebt = debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO);
+			
+			debt.setPersonName(p.getName());
+			debt.setBalance(currentDebt);
+			
+			round.getBalances().add(debt);
 			debtBalances.put(p.getName(), currentDebt.add(shareAmount));
 		}
 
@@ -102,10 +119,18 @@ public class PaymentControllerImpl implements PaymentControllerService {
 				.max(Comparator.comparing(p -> debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO))).orElseThrow();
 
 		System.out.println("Next payer is: " + nextPayer.getName());
-
+		round.setPayerName(nextPayer.getName());
+		
 		// 3. Deduct the total bill from the payer's balance (they have now "paid up")
 		BigDecimal payerBalance = debtBalances.get(nextPayer.getName());
 		debtBalances.put(nextPayer.getName(), payerBalance.subtract(totalBill));
+		
+		round.getBalances().forEach(balance -> {
+		    if (balance.getPersonName().equals(nextPayer.getName())) {
+		        balance.setBalance(payerBalance.subtract(totalBill));
+		    }
+		});
+
 
 		printDebtBalances();
 
