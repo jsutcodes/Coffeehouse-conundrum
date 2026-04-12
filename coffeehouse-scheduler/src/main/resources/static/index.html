@@ -4,49 +4,58 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Coffeehouse Scheduler</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
+    <style>
+        .shadow-inner { box-shadow: inset 0 2px 4px rgba(0,0,0,0.06); }
+        .table-responsive { max-height: 70vh; overflow-y: auto; }
+    </style>
 </head>
 <body class="bg-light">
     <div class="container-fluid py-5 px-4">
-        <div class="row g-4">
+        <!-- TOP SECTION: Order and Menu -->
+        <div class="row g-4 d-flex align-items-stretch">
             
             <!-- LEFT COLUMN: People List -->
             <div class="col-lg-8">
-                <div class="card shadow-sm border-0">
-                    <div class="card-header bg-primary text-white">
-                        <h4 class="mb-0">Order</h4>
+                <div class="card shadow-sm border-0 h-100">
+                    <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">Orders</h4>
+                        <span class="badge bg-white text-primary" id="person-count">0 People</span>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body d-flex flex-column">
                         <div class="table-responsive">
                             <table class="table table-hover align-middle">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Name</th>
-                                        <th>Order Cost</th>
+                                        <th>Total Cost</th>
+                                        <th style="width: 150px;"></th>
                                     </tr>
                                 </thead>
-								<tbody id="data-output-person" class="small">
-								    <!-- Data injected here -->
-								</tbody>
+                                <tbody id="data-output-person" class="small">
+                                    <!-- Data injected here -->
+                                </tbody>
                             </table>
                         </div>
                     </div>
-                    <!-- Buttons for People Table -->
                     <div class="card-footer d-flex gap-2 bg-white border-top-0 pb-3">
-						<button class="btn btn-sm btn-outline-primary">Remove Person</button>
+                        <button class="btn btn-sm btn-outline-danger">Remove Person</button>
                         <button class="btn btn-sm btn-primary">Add Person</button>
+                        <button class="btn btn-sm btn-success ms-auto" onclick="fetchSchedule()">Calculate Pay Schedule</button>
                     </div>
                 </div>
             </div>
 
-            <!-- RIGHT COLUMN: Smaller Menu -->
+            <!-- RIGHT COLUMN: Menu -->
             <div class="col-lg-4">
-                <div class="card shadow-sm border-0">
+                <div class="card shadow-sm border-0 h-100">
                     <div class="card-header bg-dark text-white text-center">
-                        <h5 class="mb-0">Menu Records</h5>
+                        <h5 class="mb-0">Menu</h5>
                     </div>
-                    <div class="card-body px-0"> <!-- Removed side padding for a tighter look -->
+                    <div class="card-body px-0 d-flex flex-column">
                         <div class="table-responsive">
-                            <table class="table table-sm table-striped mb-0" id="userTable">
+                            <table class="table table-sm table-striped mb-0">
                                 <thead class="small text-muted">
                                     <tr>
                                         <th class="ps-3">Item</th>
@@ -60,71 +69,180 @@
                             </table>
                         </div>
                     </div>
-                    <!-- Buttons for Menu Table -->
-                    <div class="card-footer d-flex justify-content-center gap-2 bg-white border-top-0 pb-3">
-                        <button class="btn btn-sm btn-dark px-3" onclick="location.reload()">Refresh</button>
-                        <button class="btn btn-sm btn-outline-dark px-3">+ Item</button>
+                    <div class="card-footer d-flex justify-content-center gap-2 bg-white border-top-0 pb-3 mt-auto">
+                        <button class="btn btn-sm btn-outline-dark px-3">Add Item</button>
                     </div>
                 </div>
             </div>
+        </div> <!-- End Top Row -->
 
-        </div> <!-- End Row -->
-    </div>
+        <!-- BOTTOM SECTION: Pay Schedule -->
+        <div class="row g-4 mt-2">
+            <div class="col-12" id="schedule-container" style="display: none;">
+				<div id="alert-placeholder"></div>
+                <div class="card shadow-sm border-0">
+                    <div class="card-header bg-success text-white d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Pay Schedule</h5>
+                        <button type="button" class="btn-close btn-close-white" onclick="document.getElementById('schedule-container').style.display='none'"></button>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-bordered align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>Round</th>
+                                        <th>Payer</th>
+                                        <th>Balances</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="data-output-schedule">
+                                    <!-- Schedule data injected here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div> <!-- End Container -->
 
     <!-- JavaScript -->
     <script>
         async function fetchData() {
+            // 1. Fetch Menu
             try {
                 const response = await fetch('http://localhost:8080/api/menu');
                 const menuData = await response.json();
-                const tableBody = document.getElementById('data-output-menu');
+                const menuBody = document.getElementById('data-output-menu');
+                
+                menuBody.innerHTML = menuData.map(item => `
+                    <tr>
+                        <td class="ps-3 fw-bold">${item.name}</td>
+                        <td><span class="text-muted text-capitalize">${item.size}</span></td>
+                        <td class="pe-3 text-success font-monospace">$${item.price.toFixed(2)}</td>
+                    </tr>
+                `).join('');
+            } catch (error) {
+                document.getElementById('data-output-menu').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">Menu Offline</td></tr>`;
+            }
+
+            // 2. Fetch People
+            try {
+                const response = await fetch('http://localhost:8080/api/person');
+                const personData = await response.json();
+                const personBody = document.getElementById('data-output-person');
+                document.getElementById('person-count').innerText = `${personData.length} People`;
                 
                 let output = "";
-                menuData.forEach(menuItem => {
-                    output += `
+                personData.forEach(person => {
+                    const totalCost = person.items.reduce((acc, item) => acc + item.price, 0);
+                    
+                    const itemRows = person.items.map(item => `
                         <tr>
-                            <td class="ps-3 fw-bold">${menuItem.name}</td>
-                            <td><span class="text-muted text-capitalize">${menuItem.size}</span></td>
-                            <td class="pe-3 text-success font-monospace">$${menuItem.price.toFixed(2)}</td>
+                            <td>${item.name}</td>
+                            <td>${item.size}</td>
+                            <td class="text-success">$${item.price.toFixed(2)}</td>
+                            <td class="text-center">
+                                <button class="btn btn-outline-danger btn-sm px-2 py-0" onclick="removeItem(${person.id}, ${item.id})">&minus;</button>
+                            </td>
+                        </tr>
+                    `).join('');
+
+                    output += `
+                        <tr class="align-middle">
+                            <td class="ps-3 fw-bold">${person.name}</td>
+                            <td class="text-success font-monospace">$${totalCost.toFixed(2)}</td>
+                            <td class="text-end pe-3">
+                                <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#items-${person.id}">
+                                    Items (${person.items.length})
+                                </button>
+                            </td>
+                        </tr>
+                        <tr class="collapse" id="items-${person.id}">
+                            <td colspan="3" class="p-0">
+                                <div class="bg-light p-3 shadow-inner">
+                                    <table class="table table-sm table-bordered bg-white mb-0">
+                                        <tbody>
+                                            ${itemRows || '<tr><td colspan="4" class="text-center text-muted">No items ordered</td></tr>'}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </td>
                         </tr>
                     `;
                 });
-                
-                tableBody.innerHTML = output;
+                personBody.innerHTML = output;
             } catch (error) {
-                console.error("Error fetching menu data:", error);
-                document.getElementById('data-output').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">Offline</td></tr>`;
+                document.getElementById('data-output-person').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">People List Offline</td></tr>`;
             }
-			
-			try {
-			    const response = await fetch('http://localhost:8080/api/person');
-			    const personData = await response.json();
-			    const tableBody = document.getElementById('data-output-person');
-			    
-			    let output = "";
-			    personData.forEach(person => {
-			        output += `
-			            <tr>
-			                <td class="ps-3 fw-bold">${person.name}</td>
-			                <td class="pe-3 text-success font-monospace">$${person.items}</td>
-			            </tr>
-			        `;
-			    });
-			    
-			    tableBody.innerHTML = output;
-			} catch (error) {
-			    console.error("Error fetching person data:", error);
-			    document.getElementById('data-output').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">Offline</td></tr>`;
-			}
-			
         }
+
+		async function fetchSchedule() {
+		    try {
+		        // 1. Re-fetch or use a global variable to get the current state of people
+		        // For simplicity, let's fetch the latest list from the API before calculating
+		        const personResponse = await fetch('http://localhost:8080/api/person');
+		        const currentOrders = await personResponse.json();
+
+		        // 2. POST the orders to your schedule endpoint
+		        const response = await fetch('http://localhost:8080/api/schedule', {
+		            method: 'POST',
+		            headers: {
+		                'Content-Type': 'application/json'
+		            },
+		            body: JSON.stringify(currentOrders) // Sending the list of Person objects
+		        });
+
+		        if (!response.ok) throw new Error('Calculation failed');
+
+		        const scheduleData = await response.json();
+				console.log(scheduleData);
+		        const container = document.getElementById('schedule-container');
+		        const body = document.getElementById('data-output-schedule');
+				const alertPlaceholder = document.getElementById('alert-placeholder');
+		        
+		        // 3. Render the result (assuming rounds is the list returned)
+		        body.innerHTML = scheduleData.rounds.map((round, i) => `
+		            <tr>
+		                <td>Round ${i + 1}</td>
+		                <td class="fw-bold">${round.payerName}</td>
+						<td class="text-success font-monospace">
+						    ${round.balances.map(b => 
+						        `${b.personName}: $${b.balance.toFixed(2)}`
+						    ).join(' | ')}
+						</td>
+		            </tr>
+		        `).join('');
+		        
+		        container.style.display = 'block';
+		        container.scrollIntoView({ behavior: 'smooth' });
+				
+				if (scheduleData.maxNumOfRounds >= 30) {
+				    alertPlaceholder.innerHTML = `
+				        <div class="alert alert-warning alert-dismissible fade show" role="alert">
+				            <strong>Warning:</strong>This schedule has been shortened to 30 rounds, the total amount of rounds: (${scheduleData.maxNumOfRounds}). Would Take to long
+							Square up, It's the end of the month. 
+				            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+				        </div>
+				    `;
+				} else {
+				    alertPlaceholder.innerHTML = ''; // Clear it if it's a small schedule
+				}
+
+		    } catch (error) {
+		        console.error(error);
+		        alert("Failed to calculate schedule. Make sure people have items assigned.");
+		    }
+		}
+
+        async function removeItem(personId, itemId) {
+            console.log(`Removing item ${itemId} from person ${personId}`);
+            // Add your fetch(`${URL}/person/${personId}/item/${itemId}`, { method: 'DELETE' }) here
+        }
+
         fetchData();
     </script>
-
-	<!-- Bootstrap CSS -->
-	<link rel="stylesheet" href="/webjars/bootstrap/5.3.3/css/bootstrap.min.css">
-
-	<!-- Bootstrap JS (Optional) -->
-	<script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
+    <script src="/webjars/bootstrap/5.3.3/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

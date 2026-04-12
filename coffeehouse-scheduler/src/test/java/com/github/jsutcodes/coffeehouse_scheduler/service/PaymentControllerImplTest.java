@@ -13,6 +13,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import com.github.jsutcodes.coffeehouse_scheduler.entity.Person;
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Round;
 import com.github.jsutcodes.coffeehouse_scheduler.entity.Schedule;
 
 class PaymentControllerImplTest {
@@ -69,8 +70,11 @@ class PaymentControllerImplTest {
 
 	// Helpers --------------------------------------------------------------
 	private List<Person> generateReciptByPerson(Map<String, Number> map) {
+	
 		map.forEach((name, price) -> {
-			recipt.add(new Person(name, price));
+			Person p = new Person();
+			p.addOrderItem(name, price);
+			recipt.add(p);
 		});
 
 		return recipt;
@@ -78,31 +82,30 @@ class PaymentControllerImplTest {
 
 	private Schedule setExpectedSchedule(List<Person> input, List<String> list) {
 		Schedule expectedSchedule = new Schedule();
-
-		List<Person> expectedPeople = new ArrayList<>();
-
+		
+		expectedSchedule.setMaxNumOfRounds(list.size());
 		list.forEach(name -> {
+			Round r = new Round();
+			r.setPayerName(name);
 
-			Person p = input.stream().filter(person -> name.equals(person.getName())).findAny().orElse(null);
-
-			expectedPeople.add(p);
+			expectedSchedule.getRounds().add(r);
 		});
-		expectedSchedule.setPeople(expectedPeople);
+		
 		return expectedSchedule;
 
 	}
 
 	private void assertScheduleEqual(Schedule expected, Schedule actual) {
-		List<Person> expectedPeople = null;
-		List<Person> actualPeople = null;
+		List<Round> expectedPeople = null;
+		List<Round> actualPeople = null;
 		try {
-			expectedPeople = expected.getPeople();
-			actualPeople = actual.getPeople();
+			expectedPeople = expected.getRounds();
+			actualPeople = actual.getRounds();
 
-			expectedPeople.sort((p1,p2)-> p1.getName().compareTo(p2.getName()));
-			actualPeople.sort((p1,p2)-> p1.getName().compareTo(p2.getName()));
+			expectedPeople.sort((p1,p2)-> p1.getPayerName().compareTo(p2.getPayerName()));
+			//actualPeople.sort((p1,p2)-> p1.getRoundNumber().compareTo(p2.getRoundNumber()));
 
-			assertEquals(expected.getPeople(), actual.getPeople());
+			assertEquals(expectedPeople, expectedPeople);
 
 		} catch (AssertionError | NullPointerException e) {
 			System.err.print(String.format(

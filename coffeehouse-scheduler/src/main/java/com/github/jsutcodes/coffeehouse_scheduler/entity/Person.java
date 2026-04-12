@@ -8,7 +8,7 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
-import jakarta.persistence.OneToMany;
+import jakarta.persistence.ManyToMany;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -22,19 +22,21 @@ public class Person extends BaseEntity {
 	private Long id;
 	private String name;
 
-	@OneToMany(cascade = CascadeType.ALL)
+	@ManyToMany(cascade = CascadeType.ALL)
 	@JoinTable(name = "person_items", joinColumns = @JoinColumn(name = "person_id"), inverseJoinColumns = @JoinColumn(name = "menu_id"))
 	private List<Menu> items = new ArrayList<>();
 
-	// private Map<String, BigDecimal> debtMap = new HashMap<>();
-
-	public Person(String name, Number price) {
-		this.name = name;
-
-		Menu item = Menu.builder().name("MenuItem ordered by" + name).price(BigDecimal.valueOf(price.doubleValue()))
-				.size("SM").build();
-
-		items.add(item);
-	}
+	
+    public void addOrderItem(String itemName, Number price) {
+        if (price == null) return;
+        
+        Menu item = Menu.builder()
+                .name(itemName)
+                .price(BigDecimal.valueOf(price.doubleValue()))
+                .size("SM")
+                .build();
+        
+        this.items.add(item);
+    }
 
 }

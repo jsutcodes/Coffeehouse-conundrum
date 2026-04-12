@@ -2,8 +2,8 @@
 -- 1. Insert People (since Schedule and Menu depend on them)
 INSERT INTO person (name, created_at) VALUES ('Bob', CURRENT_TIMESTAMP);
 INSERT INTO person (name, created_at) VALUES ('Jim', CURRENT_TIMESTAMP);
-INSERT INTO person (name, created_at) VALUES ('Sandra', CURRENT_TIMESTAMP);
-INSERT INTO person (name, created_at) VALUES ('Tom', CURRENT_TIMESTAMP);
+--INSERT INTO person (name, created_at) VALUES ('Sandra', CURRENT_TIMESTAMP);
+--INSERT INTO person (name, created_at) VALUES ('Tom', CURRENT_TIMESTAMP);
 INSERT INTO person (name, created_at) VALUES ('Violet', CURRENT_TIMESTAMP);
 
 -- 2. Insert Menu 
@@ -25,10 +25,16 @@ INSERT INTO menu (name, price, size, created_at) VALUES ('Chai Latte', 4.50, 'Me
 INSERT INTO menu (name, price, size, created_at) VALUES ('Matcha Latte', 5.00, 'Medium', CURRENT_TIMESTAMP);
 INSERT INTO menu (name, price, size, created_at) VALUES ('Earl Grey Tea', 3.00, 'Large', CURRENT_TIMESTAMP);
 
--- 3. Insert Schedule
---INSERT INTO schedule (current_payer_index, max_num_of_rounds, created_at) 
---VALUES (0, 10, CURRENT_TIMESTAMP);
+-- 3. Insert people_items
+INSERT INTO person_items (person_id, menu_id) VALUES (1, 5);
+--INSERT INTO person_items (person_id, menu_id) VALUES (1, 6);
 
--- 4. Map People to Schedule (Join Table)
---INSERT INTO schedule_people (schedule_id, people_id) VALUES (1, 1);
---INSERT INTO schedule_people (schedule_id, people_id) VALUES (1, 2);
+INSERT INTO person_items (person_id, menu_id) VALUES (2, 12);
+
+--INSERT INTO person_items (person_id, menu_id) VALUES (3, 9);
+INSERT INTO person_items (person_id, menu_id) VALUES (3, 11);
+
+--INSERT INTO person_items (person_id, menu_id) VALUES (4, 11);
+
+--INSERT INTO person_items (person_id, menu_id) VALUES (5, 11);
+
