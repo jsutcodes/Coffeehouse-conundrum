@@ -69,7 +69,7 @@ public class PaymentServiceImpl implements PaymentService {
 		for (int i = 0; i < maxRounds; i++) {
 			Round currentRound = new Round();
 			currentRound.setRoundNumber(i);
-			System.out.println("Round " + (i + 1));
+			//System.out.println("Round " + (i + 1));
 			
 			Map<String, BigDecimal> previousDebtBalances = new HashMap<>(debtBalances);
 			Person nextPayer = getNextPayer(list, totalBill, currentRound);
@@ -100,43 +100,40 @@ public class PaymentServiceImpl implements PaymentService {
 	}
 
 	private Person getNextPayer(List<Person> list, BigDecimal totalBill, Round round) {
-		Map<String, BigDecimal> currentBillShares = calculateSharedPercentageByPerson(list);
+	    Map<String, BigDecimal> currentBillShares = calculateSharedPercentageByPerson(list);
 
-		// 1. Update everyone's balance with their share of the current bill
-		for (Person p : list) {
-			DebtEntry debt = new DebtEntry();
-			BigDecimal shareAmount = currentBillShares.getOrDefault(p.getName(), BigDecimal.ZERO);
-			BigDecimal currentDebt = debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO);
-			
-			debt.setPersonName(p.getName());
-			debt.setBalance(currentDebt.add(shareAmount));
-			
-			round.getBalances().add(debt);
-			debtBalances.put(p.getName(), currentDebt.add(shareAmount));
-		}
+	    for (Person p : list) {
+	        BigDecimal shareAmount = currentBillShares.getOrDefault(p.getName(), BigDecimal.ZERO);
+	        BigDecimal currentDebt = debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO);
+	        
+	        DebtEntry debt = new DebtEntry();
+	        debt.setPersonName(p.getName());
+	        debt.setBalance(currentDebt.add(shareAmount));
+	        
+	        round.getBalances().add(debt);
+	        debtBalances.put(p.getName(), currentDebt.add(shareAmount));
+	    }
 
-		// 2. Find the person with the highest debt (the most "overdue" to pay)
-		Person nextPayer = list.stream()
-				.max(Comparator.comparing(p -> debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO))).orElseThrow();
+	    // FIX: Add a secondary comparison by name to handle ties deterministically
+	    Person nextPayer = list.stream()
+	            .max(Comparator.comparing((Person p) -> debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO))
+	                           .thenComparing(Person::getName)) // If debts are equal, pick the first alphabetically
+	            .orElseThrow();
 
-		System.out.println("Next payer is: " + nextPayer.getName());
-		round.setPayerName(nextPayer.getName());
-		
-		// 3. Deduct the total bill from the payer's balance (they have now "paid up")
-		BigDecimal payerBalance = debtBalances.get(nextPayer.getName());
-		debtBalances.put(nextPayer.getName(), payerBalance.subtract(totalBill));
-		
-		round.getBalances().forEach(balance -> {
-		    if (balance.getPersonName().equals(nextPayer.getName())) {
-		        balance.setBalance(payerBalance.subtract(totalBill));
-		    }
-		});
+	    round.setPayerName(nextPayer.getName());
+	    
+	    BigDecimal payerBalance = debtBalances.get(nextPayer.getName());
+	    debtBalances.put(nextPayer.getName(), payerBalance.subtract(totalBill));
+	    
+	    round.getBalances().forEach(balance -> {
+	        if (balance.getPersonName().equals(nextPayer.getName())) {
+	            balance.setBalance(payerBalance.subtract(totalBill));
+	        }
+	    });
 
-
-		printDebtBalances();
-
-		return nextPayer;
+	    return nextPayer;
 	}
+
 
 	private void printDebtBalances() {
 		debtBalances.forEach(

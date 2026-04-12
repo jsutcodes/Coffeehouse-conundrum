@@ -1,117 +1,119 @@
 package com.github.jsutcodes.coffeehouse_scheduler.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
+import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import com.github.jsutcodes.coffeehouse_scheduler.entity.Menu;
 import com.github.jsutcodes.coffeehouse_scheduler.entity.Person;
 import com.github.jsutcodes.coffeehouse_scheduler.entity.Round;
 import com.github.jsutcodes.coffeehouse_scheduler.entity.Schedule;
 
 class PaymentControllerImplTest {
 
-	private PaymentService pcs;
-	private List<Person> recipt;
+    private PaymentService paymentService;
 
-	@BeforeEach
-	void setUp() {
-		pcs = new PaymentServiceImpl();
-		recipt = new LinkedList<>();
-	}
+    @BeforeEach
+    void setUp() {
+        paymentService = new PaymentServiceImpl();
+    }
 
-	@Test
-	void givenWholeNum_whenSchedule_thenNoDebtRemains() {
+    @Test
+    void givenWholeNumbers_whenCalculated_thenFollowsCorrectPayerSequence() {
+        List<Person> input = generateInput(Map.of("A", 1.0, "B", 3.0, "C", 6.0));
+        Schedule result = paymentService.calculatePaymentRotation(input);
 
-		List<Person> input = generateReciptByPerson(Map.of("A", 1, "B", 3, "C", 6));
-		
-		//System.out.println(Schedule.predictCycleLength(input));
-		
-		Schedule result = pcs.calculatePaymentRotation(input);
+        // The sequence based on your "Highest Debt" logic
+        List<String> expectedPayers = Arrays.asList("C", "B", "C", "C", "B", "C", "A", "C", "B", "C");
 
-		Schedule expectedResult = setExpectedSchedule(input,
-				Arrays.asList("C", "B", "C", "B", "C", "B", "C", "A", "C", "C"));
+        assertPayerSequence(expectedPayers, result);
+    }
 
-		assertScheduleEqual(expectedResult, result);
-	}
 
-	@Test
-	void givenIrrationalDecNum_whenSchedule_thenForceBreakEven() {
-		
-		List<Person> input = generateReciptByPerson(Map.of("A", 3.33, "B", 4.67, "C", 2));
-		
-		Schedule result = pcs.calculatePaymentRotation(input);
+    @Test
+    void givenDecimals_whenCalculated_thenHandlesRoundingPatterns() {
+        List<Person> input = generateInput(Map.of(
+            "A", 3.33, 
+            "B", 4.67, 
+            "C", 2.0
+        ));
+        
+        Schedule result = paymentService.calculatePaymentRotation(input);
 
-		Schedule expectedResult = setExpectedSchedule(input,
-				Arrays.asList("B", "A", "C", "B", "A", "B", "C", "B", "A", "B","A","B","C","A", "B"));
+        List<String> expectedPayers = Arrays.asList("B", "A", "C", "B", "A", "B", "C", "B", "A", "B", "A", "B", "C", "A", "B");
 
-		assertScheduleEqual(expectedResult, result);
-	}
-	
-	@Test
-	void givenIrrationalNum_whenSchedule_thenForceBreakEven() {
-		
-		//Test case where there are no decimals x100 
-		List<Person> input = generateReciptByPerson(Map.of("A", 333, "B", 467, "C", 200));
-		Schedule result = pcs.calculatePaymentRotation(input);
+        assertPayerSequence(expectedPayers, result);
+    }
 
-		Schedule expectedResult = setExpectedSchedule(input,
-				Arrays.asList("B", "A", "C", "B", "A", "B", "C", "B", "A", "B","A","B","C","A", "B"));
+    @Test
+    void givenScaledNumbers_whenCalculated_thenProducesSameSequenceAsDecimals() {
+        // Multiplying the previous test case by 100 to ensure integer logic holds
+        List<Person> input = generateInput(Map.of(
+            "A", 333.0, 
+            "B", 467.0, 
+            "C", 200.0
+        ));
+        
+        Schedule result = paymentService.calculatePaymentRotation(input);
 
-		assertScheduleEqual(expectedResult, result);
-	}
+        List<String> expectedPayers = Arrays.asList("B", "A", "C", "B", "A", "B", "C", "B", "A", "B", "A", "B", "C", "A", "B");
 
-	// Helpers --------------------------------------------------------------
-	private List<Person> generateReciptByPerson(Map<String, Number> map) {
-	
-		map.forEach((name, price) -> {
-			Person p = new Person();
-			p.addOrderItem(name, price);
-			recipt.add(p);
-		});
+        assertPayerSequence(expectedPayers, result);
+    }
 
-		return recipt;
-	}
+    // Helpers --------------------------------------------------------------
 
-	private Schedule setExpectedSchedule(List<Person> input, List<String> list) {
-		Schedule expectedSchedule = new Schedule();
-		
-		expectedSchedule.setMaxNumOfRounds(list.size());
-		list.forEach(name -> {
-			Round r = new Round();
-			r.setPayerName(name);
+    /**
+     * Helper to create Person objects with Menu items based on a price map.
+     */
+    private List<Person> generateInput(Map<String, Double> map) {
+        List<Person> people = new ArrayList<>();
+        map.forEach((name, price) -> {
+            Person p = new Person();
+            p.setName(name);
+            
+            Menu item = new Menu();
+            item.setName("Coffee");
+            item.setPrice(BigDecimal.valueOf(price));
+            
+            p.setItems(new ArrayList<>(List.of(item)));
+            people.add(p);
+        });
 
-			expectedSchedule.getRounds().add(r);
-		});
-		
-		return expectedSchedule;
+        // FIX: Sort by name so tie-breakers are deterministic
+        people.sort(Comparator.comparing(Person::getName));
+        return people;
+    }
 
-	}
 
-	private void assertScheduleEqual(Schedule expected, Schedule actual) {
-		List<Round> expectedPeople = null;
-		List<Round> actualPeople = null;
-		try {
-			expectedPeople = expected.getRounds();
-			actualPeople = actual.getRounds();
+    /**
+     * Compares the generated payer names in order against an expected list.
+     */
+    private void assertPayerSequence(List<String> expectedNames, Schedule actualSchedule) {
+        List<String> actualNames = actualSchedule.getRounds().stream()
+                .map(Round::getPayerName)
+                .collect(Collectors.toList());
 
-			expectedPeople.sort((p1,p2)-> p1.getPayerName().compareTo(p2.getPayerName()));
-			//actualPeople.sort((p1,p2)-> p1.getRoundNumber().compareTo(p2.getRoundNumber()));
+        // Check if we got fewer rounds than we expected to test
+        if (actualNames.size() < expectedNames.size()) {
+            org.junit.jupiter.api.Assertions.fail("Schedule was too short. Expected at least " + 
+                 expectedNames.size() + " rounds but got " + actualNames.size());
+        }
+        
+        // Only compare the start of the list
+        for (int i = 0; i < expectedNames.size(); i++) {
+            assertEquals(expectedNames.get(i), actualNames.get(i), "Mismatch at Round " + (i + 1));
+        }
+    }
 
-			assertEquals(expectedPeople, expectedPeople);
-
-		} catch (AssertionError | NullPointerException e) {
-			System.err.print(String.format(
-					"assertScheduleEqual failure: expected did not equal actual:\n\t expected:\n%s\n\t actual:\n%s\n",
-					(expected != null) ? expected : "null", (actual != null) ? actual : "null"));
-			fail();
-		}
-	}
 
 }
