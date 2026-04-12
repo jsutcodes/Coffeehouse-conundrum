@@ -36,3 +36,6 @@ This allowed me to start with my Assumptions:
 3. New Members either adding or dropping would affect the debt schedule, so whoever drops out either needs to pay out/ or everyone agrees to forget all debt and create a new schedule.
 4. Skipping Turns could affect the schedule so for simple solution we assume no one skips and everyone is present every single day.
 ```
+
+Built with a TDD-first approach, the application ensures fair pay-rotation logic through rigorous unit testing.
+ The backend is powered by Spring Boot and utilizes an H2 database for lightweight, efficient data management.

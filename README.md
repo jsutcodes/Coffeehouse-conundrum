@@ -74,3 +74,29 @@ Note: After Customizing the Menu, when the jar is terminated, the DB will be res
 ```
 
 ## HOW-TO: Input data
+
+### 📋 Managing Your Coffeehouse Data
+
+#### 1. Adding Custom Items
+**Menu Items**
+* Locate the **Menu** card on the right side of the screen.
+* Click the **"Add Item"** button at the bottom of the list.
+* Enter the item name, size, and price in the modal and save to update the master menu.
+
+**Assigning Items to People**
+* In the **Orders** table, find the person you wish to update.
+* Click the **"Items (#)"** button to expand their personal order list.
+* Use the **dropdown menu** that appears below their name to select a drink from the master menu.
+* Click the green **"Add Item"** button next to the dropdown to instantly add it to their tab.
+
+#### 2. Removing Items and People
+**Removing Specific Drinks**
+* Expand a person's order by clicking **"Items (#)"**.
+* Click the red **minus (−) or (×)** button next to the specific item you want to delete. The "Total Cost" for that person will update automatically.
+
+**Removing People**
+* In the main **Orders** table, locate the red **(×)** button on the far right of the person's row.
+* Click it and confirm the prompt to completely remove that person and their entire order from the session.
+
+**Removing Menu Master Items**
+* In the **Menu** card, click the small red **(×)** next to any drink price to permanently remove that option from the coffeehouse offerings.
