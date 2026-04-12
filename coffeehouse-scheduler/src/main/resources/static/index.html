@@ -218,10 +218,10 @@
 		        container.style.display = 'block';
 		        container.scrollIntoView({ behavior: 'smooth' });
 				
-				if (scheduleData.maxNumOfRounds >= 30) {
+				if (scheduleData.maxNumOfRounds >= 90) {
 				    alertPlaceholder.innerHTML = `
 				        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-				            <strong>Warning:</strong>This schedule has been shortened to 30 rounds, the total amount of rounds: (${scheduleData.maxNumOfRounds}). Would Take to long
+				            <strong>Warning:</strong>This schedule has been shortened to 90 rounds, the total amount of rounds: (${scheduleData.maxNumOfRounds}). Would Take to long
 							Square up, It's the end of the month. 
 				            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 				        </div>

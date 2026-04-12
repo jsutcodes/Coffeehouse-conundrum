@@ -2,8 +2,8 @@
 -- 1. Insert People (since Schedule and Menu depend on them)
 INSERT INTO person (name, created_at) VALUES ('Bob', CURRENT_TIMESTAMP);
 INSERT INTO person (name, created_at) VALUES ('Jim', CURRENT_TIMESTAMP);
---INSERT INTO person (name, created_at) VALUES ('Sandra', CURRENT_TIMESTAMP);
---INSERT INTO person (name, created_at) VALUES ('Tom', CURRENT_TIMESTAMP);
+INSERT INTO person (name, created_at) VALUES ('Sandra', CURRENT_TIMESTAMP);
+INSERT INTO person (name, created_at) VALUES ('Tom', CURRENT_TIMESTAMP);
 INSERT INTO person (name, created_at) VALUES ('Violet', CURRENT_TIMESTAMP);
 
 -- 2. Insert Menu 
@@ -34,7 +34,7 @@ INSERT INTO person_items (person_id, menu_id) VALUES (2, 12);
 --INSERT INTO person_items (person_id, menu_id) VALUES (3, 9);
 INSERT INTO person_items (person_id, menu_id) VALUES (3, 11);
 
---INSERT INTO person_items (person_id, menu_id) VALUES (4, 11);
+INSERT INTO person_items (person_id, menu_id) VALUES (4, 10);
 
---INSERT INTO person_items (person_id, menu_id) VALUES (5, 11);
+INSERT INTO person_items (person_id, menu_id) VALUES (5, 7);
 

@@ -36,4 +36,6 @@ Allows for code generation of the predictCycleLength() which will tell how many 
 ### Query: How can I add an UI with bootstrap to a spring boot project?
 ```
 Allowed for the WebJar recommendation and steps to include UI in packaged Jar.  
+Note: the Ui was primarily generated using AI queries. Examples being: how to Add the table of items in the Order Table.
+I will not list all the small queries that were used to generate and help create the UI to save space in this document.
 ```

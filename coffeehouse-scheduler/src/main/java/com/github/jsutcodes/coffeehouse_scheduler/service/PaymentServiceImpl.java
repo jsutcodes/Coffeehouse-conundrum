@@ -23,7 +23,7 @@ public class PaymentServiceImpl implements PaymentService {
 	private Schedule schedule = new Schedule();
 	private Map<String, BigDecimal> debtBalances = new HashMap<>();
 
-	private final int MAX_ROUNDS = 30;
+	private final int MAX_ROUNDS = 90;
 
 	@Override
 	public Schedule calculatePaymentRotation(List<Person> list) {
@@ -61,6 +61,7 @@ public class PaymentServiceImpl implements PaymentService {
 		
 		schedule = new Schedule();
 		Set<String> seenStates = new HashSet<>();
+		 debtBalances = new HashMap<>();
 		// Find the Schedules Max rounds to loop about
 		schedule.setMaxNumOfRounds(Math.toIntExact(Schedule.predictCycleLength(list)));
 		int maxRounds = Math.min(MAX_ROUNDS,schedule.getMaxNumOfRounds());
@@ -108,7 +109,7 @@ public class PaymentServiceImpl implements PaymentService {
 			BigDecimal currentDebt = debtBalances.getOrDefault(p.getName(), BigDecimal.ZERO);
 			
 			debt.setPersonName(p.getName());
-			debt.setBalance(currentDebt);
+			debt.setBalance(currentDebt.add(shareAmount));
 			
 			round.getBalances().add(debt);
 			debtBalances.put(p.getName(), currentDebt.add(shareAmount));
