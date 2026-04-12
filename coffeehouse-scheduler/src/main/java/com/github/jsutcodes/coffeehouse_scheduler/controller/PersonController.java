@@ -25,7 +25,7 @@ public class PersonController {
 
     private final PersonService personService;
 
-    // GET: http://localhost:8080/api/menus
+    // GET: http://localhost:8080/api/person
     @GetMapping
     public List<Person> getAllPeople() {
         return personService.getAllPeople();

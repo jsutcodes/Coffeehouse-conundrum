@@ -26,7 +26,7 @@ Using the steps above, a simplest test case of the solution:
 └───┘└───┘└───┘└───┘└───┘└───┘└───┘└───┘└───┘└───┘
 
 Note: Order does not matter
-At the end of the 10 days the debt is 0 as this example is perfectly even scenario. 
+At the end of the 10 days the debt is 0 as this example is perfectly even scenario.
 ```
 
 This allowed me to start with my Assumptions:
