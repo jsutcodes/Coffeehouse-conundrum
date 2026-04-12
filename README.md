@@ -74,8 +74,9 @@ Note: After Customizing the Menu, when the jar is terminated, the DB will be res
 ```
 
 ## HOW-TO: Input data
-
 ### 📋 Managing Your Coffeehouse Data
+
+<img width="872" height="1018" alt="demo" src="https://github.com/user-attachments/assets/b7bee30f-2d9f-47b5-b47b-25d77efa393f" />
 
 #### 1. Adding Custom Items
 **Menu Items**
