@@ -48,6 +48,11 @@ To run the Application go to your terminal and run:
 double clicking the jar will also run it (but as a background process. Highly suggested to run in the terminal to avoid port collisions when forgetting to kill the jar before running again.)
 
 
+Then go to the browser and enter:
+[http://localhost:8080/index.html](http://localhost:8080/index.html)
+
+This will to load up the frontend for interacting with the schedule UI.
+
 Things to note:
 
 A simple, efficient tool to manage group coffee orders and calculate a fair rotation for who pays each round.
