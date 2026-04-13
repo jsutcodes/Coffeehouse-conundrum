@@ -35,6 +35,11 @@ d-----         4/12/2026   4:54 PM                test-classes
 -a----         4/12/2026   4:54 PM       61983964 coffeehouse-scheduler-0.0.1-SNAPSHOT.jar
 ```
 
+#### Instead of Building...
+You may Download the jar from this repo's releases: https://github.com/jsutcodes/Coffeehouse-conundrum/releases/tag/v1.0.0
+
+Just Click on the Download for: coffeehouse-scheduler-0.0.1-SNAPSHOT.jar
+
 ## Running the Application: Coffeehouse Scheduler
 To run the Application go to your terminal and run:
 ```
