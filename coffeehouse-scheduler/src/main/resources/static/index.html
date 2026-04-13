@@ -184,65 +184,76 @@
                 document.getElementById('data-output-menu').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">Menu Offline</td></tr>`;
             }
 
-            // 2. Fetch People
-            try {
-                const response = await fetch('http://localhost:8080/api/person');
-                const personData = await response.json();
-                const personBody = document.getElementById('data-output-person');
-                document.getElementById('person-count').innerText = `${personData.length} People`;
-                
-                let output = "";
-                personData.forEach(person => {
-                    const totalCost = person.items.reduce((acc, item) => acc + item.price, 0);
-                    
-                    const itemRows = person.items.map(item => `
-                        <tr>
-                            <td>${item.name}</td>
-                            <td>${item.size}</td>
-                            <td class="text-success">$${item.price.toFixed(2)}</td>
-                            <td class="text-center">
-                                <button class="btn btn-outline-danger btn-sm px-2 py-0" onclick="removeItem(${person.id}, ${item.id})">&minus;</button>
-                            </td>
-                        </tr>
-                    `).join('');
+			// 2. Fetch People
+			try {
+			    const response = await fetch('http://localhost:8080/api/person');
+			    const personData = await response.json();
+			    const personBody = document.getElementById('data-output-person');
+			    document.getElementById('person-count').innerText = `${personData.length} People`;
+			    
+			    let output = "";
+			    let grandTotal = 0; // Initialize grand total
 
-					const menuOptions = menuData.map(m => `<option value="${m.id}">${m.name} (${m.size}) - $${m.price.toFixed(2)}</option>`).join('');
-					output += `
-					    <tr class="align-middle">
-					        <td class="ps-3 fw-bold">${person.name}</td>
-					        <td class="text-success font-monospace">$${totalCost.toFixed(2)}</td>
-					        <td class="text-end pe-3">
-					            <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#items-${person.id}">
-					                Items (${person.items.length})
-					            </button>
-					            <button class="btn btn-outline-danger btn-sm" onclick="removePerson(${person.id})">&times;</button>
-					        </td>
-					    </tr>
-					    <tr>
-					        <td colspan="3" class="p-0">
-					            <div class="collapse bg-white" id="items-${person.id}">
-					                <div class="p-3">
-					                    <table class="table table-sm border">
-					                        ${itemRows}
-					                    </table>
-					                    <!-- ADD ITEM DROPDOWN AREA -->
-					                    <div class="input-group input-group-sm mt-2" style="max-width: 400px;">
-					                        <select class="form-select" id="menu-select-${person.id}">
-					                            <option selected disabled>Choose item...</option>
-					                            ${menuOptions}
-					                        </select>
-					                        <button class="btn btn-success" onclick="addItemToPerson(${person.id})">Add Item</button>
-					                    </div>
-					                </div>
-					            </div>
-					        </td>
-					    </tr>`;
-                });
-                personBody.innerHTML = output;
-            } catch (error) {
-                document.getElementById('data-output-person').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">People List Offline</td></tr>`;
-				console.log(error);
-            }
+			    personData.forEach(person => {
+			        const totalCost = person.items.reduce((acc, item) => acc + item.price, 0);
+			        grandTotal += totalCost; // Add person's total to grand total
+			        
+			        const itemRows = person.items.map(item => `
+			            <tr>
+			                <td>${item.name}</td>
+			                <td>${item.size}</td>
+			                <td class="text-success">$${item.price.toFixed(2)}</td>
+			                <td class="text-center">
+			                    <button class="btn btn-outline-danger btn-sm px-2 py-0" onclick="removeItem(${person.id}, ${item.id})">&minus;</button>
+			                </td>
+			            </tr>
+			        `).join('');
+
+			        const menuOptions = menuData.map(m => `<option value="${m.id}">${m.name} (${m.size}) - $${m.price.toFixed(2)}</option>`).join('');
+			        output += `
+			            <tr class="align-middle">
+			                <td class="ps-3 fw-bold">${person.name}</td>
+			                <td class="text-success font-monospace">$${totalCost.toFixed(2)}</td>
+			                <td class="text-end pe-3">
+			                    <button class="btn btn-outline-primary btn-sm" type="button" data-bs-toggle="collapse" data-bs-target="#items-${person.id}">
+			                        Items (${person.items.length})
+			                    </button>
+			                    <button class="btn btn-outline-danger btn-sm" onclick="removePerson(${person.id})">&times;</button>
+			                </td>
+			            </tr>
+			            <tr>
+			                <td colspan="3" class="p-0">
+			                    <div class="collapse bg-white" id="items-${person.id}">
+			                        <div class="p-3">
+			                            <table class="table table-sm border">
+			                                ${itemRows}
+			                            </table>
+			                            <div class="input-group input-group-sm mt-2" style="max-width: 400px;">
+			                                <select class="form-select" id="menu-select-${person.id}">
+			                                    <option selected disabled>Choose item...</option>
+			                                    ${menuOptions}
+			                                </select>
+			                                <button class="btn btn-success" onclick="addItemToPerson(${person.id})">Add Item</button>
+			                            </div>
+			                        </div>
+			                    </div>
+			                </td>
+			            </tr>`;
+			    });
+
+			    // Append the Grand Total Row at the end of the loop
+			    output += `
+			        <tr class="table-secondary align-middle">
+			            <td class="ps-3 fw-bold">GRAND TOTAL</td>
+			            <td class="text-success fw-bold font-monospace" colspan="2">$${grandTotal.toFixed(2)}</td>
+			        </tr>`;
+
+			    personBody.innerHTML = output;
+
+			} catch (error) {
+			    document.getElementById('data-output-person').innerHTML = `<tr><td colspan="3" class="text-center py-3 text-danger">People List Offline</td></tr>`;
+			    console.log(error);
+			}
         }
 
 		async function fetchSchedule() {
@@ -288,8 +299,8 @@
 				if (scheduleData.maxNumOfRounds >= 90) {
 				    alertPlaceholder.innerHTML = `
 				        <div class="alert alert-warning alert-dismissible fade show" role="alert">
-				            <strong>Warning:</strong>This schedule has been shortened to 90 rounds, the total amount of rounds: (${scheduleData.maxNumOfRounds}). Would Take to long
-							Square up, It's the end of the month. 
+				            <strong>Warning:</strong>This schedule has been shortened to 90 rounds, the total amount of rounds: (${scheduleData.maxNumOfRounds}). Going longer than 3 months would Take to long
+							Square up! 
 				            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
 				        </div>
 				    `;
